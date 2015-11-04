@@ -1,11 +1,3 @@
-p = ProxySpace.push(s).makeTempoClock
-
-(
-~aa = NodeProxy.audio(s, 2);
-~aa.play;
-~aa[0] = {|freq = 220, amp = 0.2| SinOsc.ar(freq!2, mul:amp)};
-)
-
 ~aa.controlKeysValues
 ~aa.controlNames
 ~aa.controlKeys
@@ -24,24 +16,66 @@ p = ProxySpace.push(s).makeTempoClock
 ~aa.nameDef.constantSet
 ~aa.nameDef.children
 ~aa.nameDef.controls.do({|aaa| aaa.postln});
+
+p = ProxySpace.push(s).makeTempoClock
+p.clock.tempo_(1)
+
 (
-f = {|fnc|
-	var busNum;
-	b = Bus.control(s, 1);
-	// b = Bus.new(\control, busNum, 1, s);
-	// b = Bus.alloc(\control, s, 1);
-	busNum = b.index;
-	fnc.play(outbus:busNum);
-	b.value_(fnc);
+~aa = NodeProxy.audio(s, 2);
+~aa.play;
+~aa[0] = {|freq = 120, amp = 0.0| SinOsc.ar(freq!2, mul:amp)};
+)
+w = nil
+t.clear
+f.value(4, Env([0,0.8,0.1,0.7,0.0], [0.35,0.25,0.05, 2.5], \sin));
+(
+f = {|quant, env|
+	var proxy = ~aa;
+	var time2quant = TempoClock.default.timeToNextBeat(quant);
+	// var node = NodeProxy.new(s, \control, 1);
+	// var node = NodeProxy.control(s, 1);
+	var node = NodeProxy.for(c);
+	var update = true;
+	node.group = proxy.group;
+	node.fadeTime = 16;
+	// node.reshaping = \elastic;
+	c = node.bus;
+	c.postln;
+	proxy.bus.postln;
+	// ~aa.group
+	// node.clock = TempoClock.default;
+	// node.clock = p.clock;
 
-	"busIndex [%]".format(b.index).postln;
-	"busChannels [%]".format(b.numChannels).postln;
+	node.source = { EnvGen.kr(env, doneAction:2) };
+	// node.nameDef("zzz",0);
+	t.clear;
+	// w.isNil.if({ update = false; });
+	"time2quant [%]".format(time2quant).postln;
 
-	b.scope;
+	t = TempoClock.default.sched(time2quant, {
+		"\ntick quant [%]".format(quant).postln;
+		node.send;
 
-	~aa.set(\amp, NodeProxy.control(s, 1).source_(b));
-	// ~aa.nodeMap.postln;
-	// ~aa.map(\amp, b.value);
+		// node.nameDef.postln;
+
+		"\t-cBusIndex [%]".format(node.index).postln;
+		"\t-cBusChannels [%]".format(node.numChannels).postln;
+		"\t-nodeID [%]".format(node.nodeID).postln;
+		"\t-envDuration [%]".format(env.duration).postln;
+		{
+			// w = Window.new(
+			node.scope;
+			update.if(
+				// { w.refresh; },
+				// { w = env.plot(); },
+			);
+			// w.postln;
+		}.defer();
+
+		~aa.xset(\amp, node);
+
+		quant;
+	});
 
 	nil;
 	// b.postln;
@@ -50,15 +84,4 @@ f = {|fnc|
 
 
 )
-f.value({Saw.kr(2, mul:0.4 , add:0.2)});
-f.value({SinOsc.kr(1/2, mul:0.25, add:0.35 )});
-f.value({EnvGen.kr(Env([0,0.8,0.2,1,0], [0.35,0.25,0.05, 2.5], \sin), doneAction:2)});
 
-(
-t = TempoClock.default.sched(0, {
-	"tick".postln;
-	f.value({EnvGen.kr(Env([0,1,0], [0.5, 2.5], \sin), doneAction:2)});
-	4;
-})
-)
-t.clear;
