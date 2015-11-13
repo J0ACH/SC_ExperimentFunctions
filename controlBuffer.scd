@@ -29,6 +29,8 @@ s.cachedBufferAt(0).duration * s.options.blockSize
 s.cachedBufferAt(1).plot;
 s.cachedBuffersDo({ |buf| buf.postln });
 
+s.bind(
+
 (
 g = {|index|
 	// arg out = 0;
