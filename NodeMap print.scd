@@ -1,14 +1,16 @@
 (
 var testMap, textMap;
-testMap = MultiLevelIdentityDictionary.new();
+m = MultiLevelIdentityDictionary.new();
 
-testMap.put(\stage, \default, \node, "nil");
-testMap.put(\stage, \default, \group, 1001);
-testMap.put(\stage, \test, \node, "nil");
-testMap.put(\stage, \test, \group, 1002);
-testMap.put(\current, \stage, \default);
-testMap.put(\current, \proxy, "test");
-testMap.put(\currentStage, \default);
+m.put(\stage, \default, \nodeCurr, \nil);
+m.put(\stage, \default, \nodePrew, \nil);
+m.put(\stage, \default, \group, 1001);
+m.put(\stage, \test, \nodeCurr, \nil);
+m.put(\stage, \test, \nodePrew, \nil);
+m.put(\stage, \test, \group, 1002);
+m.put(\current, \stage, \default);
+m.put(\current, \proxy, "test");
+m.put(\currentStage, \default);
 
 textMap = {|map|
 	var txt = "";
@@ -47,9 +49,24 @@ textMap = {|map|
 	txt;
 };
 
-textMap.value(testMap);
+textMap.value(m);
 )
 
+(
+var stage = m.at(\stage);
+// stage.postln
+
+stage.do({|a, b|
+	// b.postln;
+	a.put(\group, nil);
+	a.at(\group).postln;
+	a.postln;
+});
+m.put(\stage, \default, \group, 1001);
+m.put(\stage, \test, \group, 1002);
+
+m.postln
+)
 
 // m.removeAt(\a, \b, \c);
 // note, \a and \b dictionaries remain
