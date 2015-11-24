@@ -1,56 +1,66 @@
 (
-var string, symbol;
-var cntSymols = List.newClear();
+var location;
+var string;
 
 w = Window.new(bounds:Rect(100,100,600,300));
+w.background = Color.new255(30,30,30);
 w.front;
 
 f = {
-	var ksc = SinOsc.ar(( \freq.kr(60) + \fplus.kr(0) ), mul: 1, add: 0);
+	var osc = SinOsc.ar(( \freq.kr(60) + \fplus.kr(0) ), mul: 1, add: 0);
 	var noise = BrownNoise.ar(\noise.kr(0), (1 - \noise.kr(0)));
-	var sig = ksc * noise;
+	var sig = osc * noise;
 	Pan2.ar( sig * \amp.kr(1), \pan.kr(0) );
 };
 
 string = f.asCompileString;
 
-string.split($\\).do({|one, i|
-	(i != 0).if({
-		var from, to;
-		from = string.find(one);
-		to = one.find(".kr");
-		cntSymols.add([from, to])
-	})
-});
-// cntSymols.asArray.postln;
+location = {|type, color|
+	var arr = [];
+	var keys = case
+	{type == \var} { \var }
+	{type == \varName} { f.def.varNames }
+	{type == \class} { f.def.selectors }
+	{type == \nameCnt} { f.def.constants };
 
-g = {|txt, symbol|
-	var posVar, varLenght;
-	var arr = List.newClear();
-	posVar = string.findAllRegexp(symbol.asString);
-	posVar.do({|index|
-		// index.postln;
-		varLenght = string.findRegexpAt(symbol.asString,index);
-		arr.add([index, varLenght[1]])
+	keys.do({|oneKey|
+		var positions = string.findAll(oneKey.asString);
+		positions.do({|onePosition|
+			case
+			{type == \var}
+			{ v.setStringColor(color, onePosition, oneKey.asString.size) }
+
+			{type == \varName}
+			{
+				(string[onePosition-1] == $\ ).if({
+					v.setStringColor(color, onePosition, oneKey.asString.size)
+				})
+			}
+
+			{type == \class}
+			{ v.setStringColor(color, onePosition, oneKey.asString.size) }
+
+			{type == \nameCnt}
+			{
+				(string[onePosition-1] != $\ ).if({
+					v.setStringColor(color, onePosition-1, oneKey.asString.size+1)
+				})
+			};
+		});
 	});
-	arr;
+	nil;
 };
-// symbol = g.value(string, "var");
-// symbol = g.value(string, "\\\\");
 
 v = TextView(w, Rect(5,5,590,290))
+.background_(Color.new255(30,30,30))
 .string_(string)
+.stringColor_(Color.new255(100,100,100))
+.font_(Font("Courier",8,usePointSize:true))
 .tabWidth_(25);
 
-cntSymols.asArray.do({|array|
-	var from = array[0]-1;
-	var to = array[1]+1;
-	v.setStringColor(Color.blue, from, to)
-});
-
-g.value(string, 'var').do({|array|
-	var from = array[0];
-	var to = array[1];
-	v.setStringColor(Color.red, from, to)
-});
+location.value(\var, Color.new255(255,255,255));
+// location.value(\varName, Color.new255(130,230,230));
+location.value(\varName, Color.new255(250,220,100));
+location.value(\class, Color.new255(180,180,180));
+location.value(\nameCnt, Color.new255(20,180,240));
 )

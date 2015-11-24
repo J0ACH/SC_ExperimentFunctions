@@ -2,11 +2,13 @@
 var testMap, textMap;
 m = MultiLevelIdentityDictionary.new();
 
-m.put(\stage, \default, \nodeCurr, \nil);
-m.put(\stage, \default, \nodePrew, \nil);
+m.put(\stage, \default, \nodes, \nodeA, \nodeCurr, \nil);
+m.put(\stage, \default, \nodes, \nodeA, \nodePrew, \nil);
+m.put(\stage, \default, \nodes, \nodeB, \nodeCurr, \nil);
+m.put(\stage, \default, \nodes, \nodeB, \nodePrew, \nil);
 m.put(\stage, \default, \group, 1001);
-m.put(\stage, \test, \nodeCurr, \nil);
-m.put(\stage, \test, \nodePrew, \nil);
+m.put(\stage, \test, \nodes, \nodeA, \nodeCurr, \nil);
+m.put(\stage, \test, \nodes, \nodeA, \nodePrew, \nil);
 m.put(\stage, \test, \group, 1002);
 m.put(\current, \stage, \default);
 m.put(\current, \proxy, "test");
@@ -51,6 +53,22 @@ textMap = {|map|
 
 textMap.value(m);
 )
+
+(
+f = {|stage|
+	var stages = List.newClear();
+	m.at(\stage, stage.asSymbol, \nodes).notNil.postln;
+
+	// map.at(\stage, stage.asSymbol, \nodes).notNil.if({
+	m.at(\stage, stage.asSymbol, \nodes).asAssociations.do({|associations|
+		associations.do{|oneAssoc| stages.add(oneAssoc.key) }
+	});
+	// });
+	stages.postln;
+	// ^stages.asArray;
+}.value(\test)
+)
+
 
 (
 var stage = m.at(\stage);
