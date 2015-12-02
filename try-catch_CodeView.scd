@@ -1,47 +1,36 @@
 (
-f = {|string|
+~safeTry = {|string|
 	var function;
-	var def;
 
-
+	// ~validCode = function;
 	try {
-
-		// protect {
 		function = string.compile;
-		// work with the file here, which might cause an error
-		def = function.def;
-
-		function.isFunction.postln;
-
-		def.sourceCode.postln;
-		("Class" + def.selectors).postln;
-		("Constats" + def.constants).postln;
-		// } {
-		// file.close;
-		// "chyba".warn;
-		// };
-
-
+		~validDef = function.def;
+		"ok".warn;
 	}
-	// {|error| \caught.postln; error.dump; };
-
 	{ |error|
-		("typErroru:" + error.species.name).postln;
-
-		switch(error.species.name)
-		{ 'Error' } {"jsem tu Error".postln;}
-		{ 'DoesNotUnderstandError'} {"jsem tu".postln;}
-		// default condition: unhandled exception, rethrow
-		// { error.throw }
-		{ "unknown exception".postln; error.dump; /*error.throw;*/ }
-
+		// error.what.postln;
+		// error.reportError;
+		// error.errorString.die;
+		// error.errorString.postln;
+		'jsem tu'.postln; // neni spravny syntax
 	};
 
 
-
-
+	("\nValidCode:" + ~validDef.sourceCode).postln;
+	("Class" + ~validDef.selectors).postln;
+	("Constats" + ~validDef.constants).postln;
+	("VarNames" + ~validDef.varNames).postln;
+	"done";
 }
 )
 
-f.value("SinOsc.ar(\\freq.kr(120), mul: 0.2)")
-f.value("aSinOsc.ar(\\freq.kr(120), mul: 0.2)")
+~safeTry.value("")
+~safeTry.value("SinOsc.ar(\\freq.kr(120), mul: 0.2)")
+~safeTry.value("SinOsc.ar(\\freq.kr (120), mul: 0.2)a")
+
+
+
+Exception.inProtectedFunction_(false)
+
+postInlineWarnings
